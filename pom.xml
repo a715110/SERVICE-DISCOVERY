@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  service-discovery: the Eureka registry, rebuilt from source.
+
+  Replaces the prebuilt service-discovery-1.0.0-SNAPSHOT-20250621.jar, whose source
+  was not available. That jar packaged dodaso_keystore.p12 (with its private key)
+  inside it and could only be reconfigured from outside. This project follows the
+  same Step 1 rules as every other dodaso app.
+
+  Deliberately does NOT depend on baseline-common: the registry is infrastructure
+  and should start fast with as few dependencies as possible.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.16</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.dodaso.ecosystem.service.discovery</groupId>
+  <artifactId>service-discovery</artifactId>
+  <version>${revision}</version>
+  <name>service-discovery</name>
+  <description>dodaso service registry (Eureka server)</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <revision>1.0.0-SNAPSHOT</revision>
+    <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
+    <spring-cloud.version>2025.0.3</spring-cloud.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>service-discovery-${project.version}-${maven.build.timestamp}</finalName>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/application*.yml</include>
+          <include>**/application*.yaml</include>
+          <include>**/application*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/application*.yml</exclude>
+          <exclude>**/application*.yaml</exclude>
+          <exclude>**/application*.properties</exclude>
+          <exclude>**/*.p12</exclude>
+        </excludes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
